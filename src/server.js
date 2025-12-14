@@ -7,6 +7,9 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
+const setupRoutes = require('./routes/setup')
+app.use(setupRoutes)
+
 
 app.get('/', async (req, res) => {
   try {
