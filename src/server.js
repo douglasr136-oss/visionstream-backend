@@ -1,18 +1,21 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+
 const pool = require('./config/database')
+const authRoutes = require('./routes/auth')
+const setupRoutes = require('./routes/setup')
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
-const setupRoutes = require('./routes/setup')
-app.use(setupRoutes)
-const authRoutes = require('./routes/auth')
+
+// Rotas
 app.use(authRoutes)
+app.use(setupRoutes)
 
-
+// Rota principal
 app.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW()')
