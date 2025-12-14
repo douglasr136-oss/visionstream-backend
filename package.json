@@ -1,1 +1,12 @@
+{
+  "name": "visionstream-backend",
+  "version": "1.0.0",
+  "description": "Backend da plataforma VisionStream Pro",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "author": "VisionStream Pro",
+  "license": "MIT"
+}
 
