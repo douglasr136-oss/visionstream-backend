@@ -4,8 +4,8 @@ const pool = require('../config/database')
 
 const router = express.Router()
 
-// Criar revendedor (admin inicialmente)
-router.post('/auth/register', async (req, res) => {
+// Criar revendedor
+router.post('/register', async (req, res) => {
   const { name, email, password } = req.body
 
   try {
@@ -23,7 +23,7 @@ router.post('/auth/register', async (req, res) => {
 })
 
 // Login
-router.post('/auth/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
   try {
