@@ -4,7 +4,6 @@ const cors = require('cors')
 
 const pool = require('./config/database')
 const authRoutes = require('./routes/auth')
-app.use('/auth', authRoutes)
 const setupRoutes = require('./routes/setup')
 
 const app = express()
@@ -13,7 +12,7 @@ app.use(cors())
 app.use(express.json())
 
 // Rotas
-app.use(authRoutes)
+app.use('/auth', authRoutes)
 app.use(setupRoutes)
 
 // Rota principal
