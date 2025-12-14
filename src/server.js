@@ -9,6 +9,8 @@ app.use(cors())
 app.use(express.json())
 const setupRoutes = require('./routes/setup')
 app.use(setupRoutes)
+const authRoutes = require('./routes/auth')
+app.use(authRoutes)
 
 
 app.get('/', async (req, res) => {
