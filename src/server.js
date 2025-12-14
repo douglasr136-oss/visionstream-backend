@@ -4,6 +4,7 @@ const cors = require('cors')
 
 const pool = require('./config/database')
 const authRoutes = require('./routes/auth')
+app.use('/auth', authRoutes)
 const setupRoutes = require('./routes/setup')
 
 const app = express()
