@@ -12,6 +12,8 @@
     "dotenv": "^16.4.5",
     "pg": "^8.11.5",
     "axios": "^1.7.2"
+    "bcryptjs": "^2.4.3"
+
   },
   "author": "VisionStream Pro",
   "license": "MIT"
