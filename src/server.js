@@ -5,6 +5,7 @@ const cors = require('cors')
 const pool = require('./config/database')
 const authRoutes = require('./routes/auth')
 const setupRoutes = require('./routes/setup')
+const protectedRoutes = require('./routes/protected')
 
 const app = express()
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }))
 // Rotas
 app.use('/auth', authRoutes)
 app.use(setupRoutes)
+app.use(protectedRoutes)
 
 // Rota principal
 app.get('/', async (req, res) => {
