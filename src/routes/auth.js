@@ -6,6 +6,11 @@ const router = express.Router()
 
 // Criar revendedor
 router.post('/register', async (req, res) => {
+  console.log('BODY RECEBIDO:', req.body)
+
+  const { name, email, password } = req.body
+
+router.post('/register', async (req, res) => {
   const { name, email, password } = req.body
 
   // ✅ Validação obrigatória
