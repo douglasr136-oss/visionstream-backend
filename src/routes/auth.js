@@ -10,10 +10,7 @@ router.post('/register', async (req, res) => {
 
   const { name, email, password } = req.body
 
-router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body
-
-  // ✅ Validação obrigatória
+  // Validação
   if (!name || !email || !password) {
     return res.status(400).json({
       error: 'Campos obrigatórios: name, email, password'
@@ -28,10 +25,10 @@ router.post('/register', async (req, res) => {
       [name, email, hashedPassword]
     )
 
-    res.json({ message: 'Revendedor criado com sucesso' })
+    return res.json({ message: 'Revendedor criado com sucesso' })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message })
   }
 })
 
