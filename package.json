@@ -7,12 +7,12 @@
     "start": "node src/server.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "pg": "^8.11.5",
-    "axios": "^1.7.2",
-    "bcryptjs": "^2.4.3"
+  "bcryptjs": "^2.4.3",
+  "cors": "^2.8.5",
+  "dotenv": "^16.4.5",
+  "express": "^4.19.2",
+  "jsonwebtoken": "^9.0.2",
+  "pg": "^8.11.5"
   },
   "author": "VisionStream Pro",
   "license": "MIT"
