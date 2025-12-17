@@ -3,6 +3,7 @@ const playerRoutes = require('./routes/player')
 const express = require('express')
 const cors = require('cors')
 const clientsRoutes = require('./routes/clients')
+const m3uRoutes = require('./routes/m3u')
 
 
 const pool = require('./config/database')
@@ -22,6 +23,7 @@ app.use('/auth', authRoutes)
 app.use(setupRoutes)
 app.use('/player', playerRoutes)
 app.use('/clients', clientsRoutes)
+app.use(m3uRoutes)
 
 
 // Rota protegida de teste (JWT)
