@@ -1,5 +1,4 @@
 const express = require('express')
-const fetch = require('node-fetch')
 const pool = require('../config/database')
 
 const router = express.Router()
