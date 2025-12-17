@@ -4,29 +4,30 @@ const authMiddleware = require('../middlewares/authMiddleware')
 
 const router = express.Router()
 
-// 🔐 Listar clients do revendedor logado
+// LISTAR CLIENTES DO REVENDEDOR LOGADO
 router.get('/', authMiddleware, async (req, res) => {
-  try {
-    const resellerId = req.user.id
+  const resellerId = req.user.id
 
+  try {
     const result = await pool.query(
-      `SELECT 
+      `
+      SELECT
         id,
-        mac_address,
+        mac,
         api_key,
-        m3u_url,
-        expiration_date,
+        expires_at,
         active,
         created_at
-       FROM clients
-       WHERE reseller_id = $1
-       ORDER BY created_at DESC`,
+      FROM clients
+      WHERE reseller_id = $1
+      ORDER BY created_at DESC
+      `,
       [resellerId]
     )
 
-    res.json(result.rows)
+    return res.json(result.rows)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Erro ao listar clientes'
     })
   }
