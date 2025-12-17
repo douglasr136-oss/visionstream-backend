@@ -1,47 +1,53 @@
 const express = require('express')
-const router = express.Router()
+const fetch = require('node-fetch')
 const pool = require('../config/database')
 
+const router = express.Router()
+
+// GET /m3u?mac=XX&key=YY
 router.get('/m3u', async (req, res) => {
   const { mac, key } = req.query
 
   if (!mac || !key) {
-    return res.status(400).json({
-      error: 'MAC e API KEY são obrigatórios'
-    })
+    return res.status(400).send('MAC ou KEY não informados')
   }
 
   try {
+    // Busca cliente válido
     const result = await pool.query(
-      `
-      SELECT m3u_url, expires_at, active
-      FROM clients
-      WHERE mac = $1 AND api_key = $2
-      LIMIT 1
-      `,
+      `SELECT m3u_url 
+       FROM clients 
+       WHERE mac = $1 
+         AND api_key = $2 
+         AND active = true
+         AND expires_at >= NOW()`,
       [mac, key]
     )
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Credenciais inválidas' })
+      return res.status(401).send('Cliente não autorizado')
     }
 
-    const client = result.rows[0]
+    const m3uUrl = result.rows[0].m3u_url
 
-    if (!client.active) {
-      return res.status(403).json({ error: 'Cliente inativo' })
+    // Busca a lista M3U real
+    const response = await fetch(m3uUrl)
+
+    if (!response.ok) {
+      return res.status(502).send('Erro ao buscar lista M3U')
     }
 
-    if (new Date(client.expires_at) < new Date()) {
-      return res.status(403).json({ error: 'Plano expirado' })
-    }
+    const m3uContent = await response.text()
 
-    // 🔁 REDIRECIONA PARA O SERVIDOR TERCEIRO
-    return res.redirect(client.m3u_url)
+    // 🔥 HEADERS CRÍTICOS PARA IPTV
+    res.setHeader('Content-Type', 'application/x-mpegURL')
+    res.setHeader('Content-Disposition', 'inline; filename="visionstream.m3u"')
 
-  } catch (err) {
-    console.error(err)
-    return res.status(500).json({ error: 'Erro interno' })
+    return res.send(m3uContent)
+
+  } catch (error) {
+    console.error(error)
+    return res.status(500).send('Erro interno no servidor')
   }
 })
 
