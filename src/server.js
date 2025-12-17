@@ -41,11 +41,11 @@ router.get('/m3u', async (req, res) => {
     const m3u = await response.text()
 
     res.setHeader('Content-Type', 'application/x-mpegURL')
-    return res.send(m3u)
+    res.send(m3u)
 
   } catch (err) {
     console.error(err)
-    return res.status(500).send('Erro interno')
+    res.status(500).send('Erro interno')
   }
 })
 
