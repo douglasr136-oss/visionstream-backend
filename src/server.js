@@ -1,4 +1,6 @@
+
 require('dotenv').config()
+const clientsRoutes = require('./routes/clients')
 const express = require('express')
 const cors = require('cors')
 
@@ -21,6 +23,8 @@ app.use('/auth', authRoutes)
 app.use(setupRoutes)
 app.use(protectedRoutes)
 app.use(clientAuthRoutes)
+app.use('/clients', clientsRoutes)
+
 
 
 // Rota principal
