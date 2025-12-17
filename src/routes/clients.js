@@ -4,7 +4,6 @@ const authMiddleware = require('../middlewares/authMiddleware')
 
 const router = express.Router()
 
-// LISTAR CLIENTES DO REVENDEDOR LOGADO
 router.get('/', authMiddleware, async (req, res) => {
   const resellerId = req.user.id
 
@@ -25,9 +24,9 @@ router.get('/', authMiddleware, async (req, res) => {
       [resellerId]
     )
 
-    return res.json(result.rows)
+    res.json(result.rows)
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       error: 'Erro ao listar clientes'
     })
   }
