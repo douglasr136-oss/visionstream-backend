@@ -1,60 +1,52 @@
-require('dotenv').config()
-const playerRoutes = require('./routes/player')
 const express = require('express')
-const cors = require('cors')
-const clientsRoutes = require('./routes/clients')
-const m3uRoutes = require('./routes/m3u')
+const pool = require('../config/database')
 
+const router = express.Router()
 
-const pool = require('./config/database')
-const authRoutes = require('./routes/auth')
-const setupRoutes = require('./routes/setup')
-const authMiddleware = require('./middlewares/authMiddleware')
+router.get('/m3u', async (req, res) => {
+  const { mac, key } = req.query
 
-const app = express()
+  if (!mac || !key) {
+    return res.status(400).send('Parâmetros inválidos')
+  }
 
-// Middlewares globais
-app.use(cors())
-app.use(express.json({ limit: '1mb' }))
-app.use(express.urlencoded({ extended: true }))
-
-// Rotas públicas
-app.use('/auth', authRoutes)
-app.use(setupRoutes)
-app.use('/player', playerRoutes)
-app.use('/clients', clientsRoutes)
-app.use(m3uRoutes)
-
-
-// Rota protegida de teste (JWT)
-app.get('/test-auth', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Token válido',
-    user: req.user
-  })
-})
-
-// Rota principal (status)
-app.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT NOW()')
-    res.json({
-      name: 'VisionStream Pro API',
-      status: 'online',
-      database: 'connected',
-      time: result.rows[0].now
+    const result = await pool.query(
+      `SELECT * FROM clients
+       WHERE mac = $1
+       AND api_key = $2
+       AND active = true
+       AND expires_at > NOW()`,
+      [mac, key]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(403).send('Acesso negado')
+    }
+
+    const IPTV_URL =
+      'http://douglasr136.online/get.php?username=Douglasr&password=478356523&type=m3u_plus&output=mpegts'
+
+    const response = await fetch(IPTV_URL, {
+      headers: {
+        'User-Agent': 'VLC/3.0.20',
+        'Accept': '*/*'
+      }
     })
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      database: 'not connected'
-    })
+
+    if (!response.ok) {
+      return res.status(502).send('Erro ao buscar lista IPTV')
+    }
+
+    const m3u = await response.text()
+
+    res.setHeader('Content-Type', 'application/x-mpegURL')
+    return res.send(m3u)
+
+  } catch (err) {
+    console.error(err)
+    return res.status(500).send('Erro interno')
   }
 })
 
-const PORT = process.env.PORT || 3000
-
-app.listen(PORT, () => {
-  console.log(`VisionStream API rodando na porta ${PORT}`)
-})
-
+module.exports = router
