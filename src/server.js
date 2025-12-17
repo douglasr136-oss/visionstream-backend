@@ -2,6 +2,8 @@ require('dotenv').config()
 const playerRoutes = require('./routes/player')
 const express = require('express')
 const cors = require('cors')
+const clientsRoutes = require('./routes/clients')
+
 
 const pool = require('./config/database')
 const authRoutes = require('./routes/auth')
@@ -19,6 +21,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/auth', authRoutes)
 app.use(setupRoutes)
 app.use('/player', playerRoutes)
+app.use('/clients', clientsRoutes)
+
 
 // Rota protegida de teste (JWT)
 app.get('/test-auth', authMiddleware, (req, res) => {
