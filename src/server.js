@@ -1,4 +1,5 @@
 require('dotenv').config()
+const playerRoutes = require('./routes/player')
 const express = require('express')
 const cors = require('cors')
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }))
 // Rotas públicas
 app.use('/auth', authRoutes)
 app.use(setupRoutes)
+app.use('/player', playerRoutes)
 
 // Rota protegida de teste (JWT)
 app.get('/test-auth', authMiddleware, (req, res) => {
