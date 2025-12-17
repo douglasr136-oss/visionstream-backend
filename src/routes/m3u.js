@@ -1,52 +1,43 @@
 const express = require('express')
-const pool = require('../config/database')
+const fetch = require('node-fetch')
 
 const router = express.Router()
 
-// GET /m3u?mac=XX&key=YY
 router.get('/m3u', async (req, res) => {
-  const { mac, key } = req.query
-
-  if (!mac || !key) {
-    return res.status(400).send('MAC ou KEY não informados')
-  }
-
   try {
-    // Busca cliente válido
-    const result = await pool.query(
-      `SELECT m3u_url 
-       FROM clients 
-       WHERE mac = $1 
-         AND api_key = $2 
-         AND active = true
-         AND expires_at >= NOW()`,
-      [mac, key]
-    )
+    const { mac, key } = req.query
 
-    if (result.rows.length === 0) {
-      return res.status(401).send('Cliente não autorizado')
+    if (!mac || !key) {
+      return res.status(400).json({ error: 'MAC ou API KEY ausente' })
     }
 
-    const m3uUrl = result.rows[0].m3u_url
+    // ⚠️ URL DO XC (por enquanto fixa)
+    const m3uUrl = 'http://douglasr136.online/get.php?username=Douglasr&password=478356523&type=m3u_plus&output=mpegts'
 
-    // Busca a lista M3U real
-    const response = await fetch(m3uUrl)
+    const response = await fetch(m3uUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'IPTV Smarters Pro',
+        'Accept': '*/*',
+        'Connection': 'keep-alive'
+      },
+      timeout: 15000
+    })
 
     if (!response.ok) {
-      return res.status(502).send('Erro ao buscar lista M3U')
+      throw new Error(`Erro ao buscar M3U: ${response.status}`)
     }
 
-    const m3uContent = await response.text()
+    const m3u = await response.text()
 
-    // 🔥 HEADERS CRÍTICOS PARA IPTV
-    res.setHeader('Content-Type', 'application/x-mpegURL')
-    res.setHeader('Content-Disposition', 'inline; filename="visionstream.m3u"')
-
-    return res.send(m3uContent)
+    res.setHeader('Content-Type', 'application/vnd.apple.mpegurl')
+    return res.send(m3u)
 
   } catch (error) {
-    console.error(error)
-    return res.status(500).send('Erro interno no servidor')
+    console.error('Erro M3U:', error.message)
+    return res.status(502).json({
+      error: 'Erro ao buscar lista M3U'
+    })
   }
 })
 
