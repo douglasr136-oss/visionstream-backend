@@ -2,25 +2,26 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 
+const authRoutes = require('./routes/auth')
 const m3uRoutes = require('./routes/m3u')
-const adminRoutes = require('./routes/admin')
 
 const app = express()
 
+// Middlewares básicos
 app.use(cors())
 app.use(express.json())
 
-app.use('/', m3uRoutes)
-app.use('/admin', adminRoutes)
+// Rotas
+app.use('/auth', authRoutes)
+app.use('/m3u', m3uRoutes)
 
+// Rota de teste simples
 app.get('/', (req, res) => {
-  res.json({
-    name: 'VisionStream API',
-    status: 'online'
-  })
+  res.json({ status: 'API VisionStream online' })
 })
 
+// Porta
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
-  console.log(`API rodando na porta ${PORT}`)
+  console.log(`Servidor rodando na porta ${PORT}`)
 })
