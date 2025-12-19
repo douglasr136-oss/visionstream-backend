@@ -4,6 +4,7 @@ const cors = require('cors')
 
 const authRoutes = require('./routes/auth')
 const m3uRoutes = require('./routes/m3u')
+const clientsRoutes = require('./routes/clients')
 
 const app = express()
 
@@ -14,6 +15,7 @@ app.use(express.json())
 // Rotas
 app.use('/auth', authRoutes)
 app.use('/m3u', m3uRoutes)
+app.use('/clients', clientsRoutes)
 
 // Rota de teste simples
 app.get('/', (req, res) => {
