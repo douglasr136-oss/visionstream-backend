@@ -1,68 +1,38 @@
 const express = require('express')
 const pool = require('../config/database')
+const authMiddleware = require('../middlewares/authMiddleware')
 
 const router = express.Router()
 
-const TRIAL_DAYS = 7
+router.get('/', authMiddleware, async (req, res) => {
+  const { mac, key } = req.query
 
-router.get('/m3u', async (req, res) => {
-  const { mac } = req.query
-
-  if (!mac) {
-    return res.status(400).send('#EXTM3U\n# MAC não informado')
+  if (!mac || !key) {
+    return res.status(400).send('MAC e KEY são obrigatórios')
   }
 
   try {
-    let clientResult = await pool.query(
-      'SELECT * FROM clients WHERE mac = $1',
-      [mac]
+    const result = await pool.query(
+      `SELECT * FROM clients
+       WHERE mac = $1
+       AND api_key = $2
+       AND active = true
+       AND expires_at > NOW()`,
+      [mac, key]
     )
 
-    let client
-
-    // 🔹 Se não existir → cria trial automático
-    if (clientResult.rows.length === 0) {
-      const expires = new Date()
-      expires.setDate(expires.getDate() + TRIAL_DAYS)
-
-      const insert = await pool.query(
-        `INSERT INTO clients (mac, expires_at, active, is_trial)
-         VALUES ($1, $2, true, true)
-         RETURNING *`,
-        [mac, expires]
-      )
-
-      client = insert.rows[0]
-    } else {
-      client = clientResult.rows[0]
+    if (result.rows.length === 0) {
+      return res.status(401).send('Cliente inválido ou expirado')
     }
 
-    // 🔹 Verifica status
-    if (!client.active) {
-      return res.send('#EXTM3U\n# Conta desativada')
-    }
-
-    if (new Date(client.expires_at) < new Date()) {
-      return res.send(
-        '#EXTM3U\n# Teste expirado\n# Acesse nosso site para ativar'
-      )
-    }
-
-    // 🔹 URL M3U REAL (por enquanto fixa para teste)
-    const M3U_URL =
-      'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-
-    const m3uContent = `
-#EXTM3U
-#EXTINF:-1 group-title="VisionStream",Canal Teste
-${M3U_URL}
-`
-
-    res.setHeader('Content-Type', 'application/vnd.apple.mpegurl')
-    res.send(m3uContent.trim())
+    // 🔴 AQUI depois vamos buscar a M3U real
+    res.setHeader('Content-Type', 'application/x-mpegURL')
+    res.send(`#EXTM3U
+#EXTINF:-1,Canal Teste
+http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`)
   } catch (err) {
     console.error(err)
-    res.status(500).send('#EXTM3U\n# Erro interno')
+    res.status(500).send('Erro ao gerar M3U')
   }
 })
 
