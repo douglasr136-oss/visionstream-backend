@@ -5,6 +5,7 @@ const cors = require('cors')
 const authRoutes = require('./routes/auth')
 const m3uRoutes = require('./routes/m3u')
 const clientsRoutes = require('./routes/clients')
+const activateRoutes = require('./routes/activate')
 
 const app = express()
 
@@ -16,6 +17,7 @@ app.use(express.json())
 app.use('/auth', authRoutes)
 app.use('/m3u', m3uRoutes)
 app.use('/clients', clientsRoutes)
+app.use('/activate', activateRoutes)
 
 // Rota de teste simples
 app.get('/', (req, res) => {
